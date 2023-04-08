@@ -1,61 +1,47 @@
 #Пункт 1
 import http.client
 import json
-#Импортированы два модуля: http.client и json.
 
 conn = http.client.HTTPConnection("167.172.172.227:8000")
-# Создан объект conn, который представляет собой соединение с указанным адресом сервера
-
 conn.request('GET', '/number/12',)
 # Выполнен запрос на сервер методом GET по определенному адресу
 
+#Пункт 1
 otv = conn.getresponse().read().decode()
-#Получен ответ от сервера с помощью метода getresponse(),
-#который содержит байтовую строку. Считываем полученный
-#и декодируем его в формате UTF-8 с помощью метода decode()
-
 otv_json = json.loads(otv)
-#Далее, с помощью функции json.loads переводим полученный ответ в формат словаря.
-
 print("Задание 1: ", otv_json['number'])
-#выводим значение ключа 'number' словаря r1_json,
-#которое в данном случае является числом 10
-#(это значение было указано в конце адреса '/number/10' для запроса)
 
 #Пункт 2
 conn.request('GET', '/number/?option=12',)
-#Мы отправляем еще один GET-запрос на сервер с параметром option=10, чтобы получить еще одно число.
-
 otv = conn.getresponse().read().decode()
-otv_json = json.loads(otv)
-#преобразуем ответ сервера из строки в словарь
-
+otv_json1 = json.loads(otv)
 print("Задание 2.1: ", otv)
-#выводим его на экран
-
-otv2 = otv_json['number'] * otv_json['number']
+otv2 = otv_json1['number'] - otv_json['number']
 print("Задание 2.2: ", otv2)
-#Мы умножаем два числа из ответов сервера и выводим результат на экран
 
 #Пункт 3
 head={'Content-Type': 'application/x-www-form-urlencoded'}
-#Первые две строки устанавливают подключение к серверу и устанавливают заголовок Content-Type,
-#чтобы указать серверу, какой тип данных мы будем отправлять.
-
-conn.request("POST","/number/", "option=10", headers=head)
-#Отправляем POST-запрос на сервер с параметром option=10
-
+conn.request("POST","/number/", "option=12", headers=head)
 q=conn.getresponse()
 otv=q.read().decode()
-#Мы получаем ответ сервера и читаем его
-
 otv3=json.loads(otv)
-#Мы преобразуем ответ из строки в словарь формата JSON
-
 otv3=otv3["number"]
-#Извлекаем из него число, которое мы сохраняем в переменную otv3
+print("Задание 3: ", otv, int(otv2+otv3))
 
-print("Задание 3: ", otv,otv3, int(otv2/otv3))
+#Пункт 4
+headers = {'Content-type':'application/json'}
+body = json.dumps({'option':12})
+conn.request('PUT', '/number/', body, headers)
+otv = conn.getresponse().read().decode()
+otv4 = json.loads(otv)
+otv4=otv4["number"]
+print("Задание 4: ", otv, int((otv2+otv3)+otv4))
+
+#Пункт 5
+body = json.dumps({'option':12})
+conn.request('DELETE','/number/', body)
+otv = conn.getresponse().read().decode()
+otv5= json.loads(otv)
+print("Задание 5: ", otv, int((otv5['number'] - otv4) ))
+
 conn.close
-#В конце мы делим число, которое мы получили в предыдущем запросе (из задания 2)
-#на число, которое мы получили в этом запросе
